@@ -1,10 +1,11 @@
-### SpringBoot \u6838\u5FC3\u914D\u7F6E\u7C7B ###
+### SpringBoot 核心配置 ###
 
 server:
-  port: 8080 # \u6307\u5B9A\u9879\u76EE\u7AEF\u53E3\u53F7
+  port: 8080 # 指定项目端口号
 
 spring:
   devtools:
     restart:
-      enabled: true # \u8BBE\u7F6E\u70ED\u90E8\u7F72\u3002\u9ED8\u8BA4\u4E3Atrue\uFF0C\u6B64\u5904\u91CD\u65B0\u8BBE\u7F6E\u9632\u6B62\u5176\u4ED6\u5730\u65B9\u4FEE\u6539\u3002
-
+      enabled: true # 设置热部署。默认为true，此处重新设置防止其他地方修改。
+  profiles: # 设置需要加载的yml配置文件
+    active: datasource
