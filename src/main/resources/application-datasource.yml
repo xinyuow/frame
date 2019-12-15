@@ -13,5 +13,5 @@ spring:
 ### MyBatis 配置 ###
 
 mybatis:
-  type-aliases-package: com.project.frame.model.**  # model实体的所在包路径
-  mapper-locations: classpath:/mapper/*.xml         # *Mapper.xml的所在路径
+  type-aliases-package: com.project.frame.model.**    # model实体的所在包路径
+  mapper-locations: classpath:/mapper/**/*Mapper.xml  # *Mapper.xml的所在路径

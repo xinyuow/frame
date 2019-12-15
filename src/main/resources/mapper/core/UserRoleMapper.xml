@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.frame.mapper.core.UserRoleMapper">
+    <resultMap id="userRoleMap" type="com.project.frame.model.core.UserRole">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="table_column">
+        UR.id as id, UR.user_id as user_id, UR.role_id as role_id, UR.create_date as create_date, 
+        UR.modify_date as modify_date
+    </sql>
+
+    <select id="getById" resultMap="userRoleMap" parameterType="java.lang.Long">
+        select
+        <include refid="table_column"/>
+        from s_user_role UR
+        where UR.id = #{id}
+    </select>
+
+    <insert id="save" parameterType="com.project.frame.model.core.UserRole">
+        insert into s_user_role (id, user_id, role_id, create_date, modify_date)
+        values (#{id}, #{userId}, #{roleId}, #{createDate}, #{modifyDate})
+    </insert>
+
+    <update id="update" parameterType="com.project.frame.model.core.UserRole">
+        update s_user_role
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="roleId != null">
+                role_id = #{roleId},
+            </if>
+            <if test="createDate != null">
+                create_date = #{createDate},
+            </if>
+            <if test="modifyDate != null">
+                modify_date = #{modifyDate},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from s_user_role
+        where id = #{id}
+    </delete>
+
+    <select id="selectList" resultMap="userRoleMap">
+        select
+        <include refid="table_column"/>
+        from s_user_role UR
+        <where>
+            <if test="userId != null">
+                and UR.user_id = #{userId}
+            </if>
+            <if test="roleId != null">
+                and UR.role_id = #{roleId}
+            </if>
+            <if test="createDate != null">
+                and UR.create_date = #{createDate}
+            </if>
+            <if test="modifyDate != null">
+                and UR.modify_date = #{modifyDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>

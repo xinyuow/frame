@@ -1,6 +1,6 @@
-package com.project.frame.controller;
+package com.project.frame.controller.app;
 
-import com.project.frame.commons.controller.BaseController;
+import com.project.frame.controller.common.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +15,7 @@ import java.util.Map;
  * @date 2019/12/15
  */
 @RestController
-@RequestMapping(value = "/api/vi/anon/test")
+@RequestMapping(value = "/api/v1/anon/test")
 public class TestController extends BaseController {
     private static final long serialVersionUID = 5199396357453768833L;
 

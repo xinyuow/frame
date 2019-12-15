@@ -1,4 +1,4 @@
-package com.project.frame.commons.controller;
+package com.project.frame.controller.common;
 
 import com.project.frame.commons.config.ExceptionHandlerAdvice;
 import com.project.frame.utils.exception.BASE_RESPONSE_CODE_ENUM;

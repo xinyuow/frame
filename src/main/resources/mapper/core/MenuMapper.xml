@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.project.frame.mapper.core.MenuMapper">
+    <resultMap id="menuMap" type="com.project.frame.model.core.Menu">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="sort" property="sort" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="table_column">
+        M.id as id, M.parent_id as parent_id, M.name as name, M.url as url, M.sort as sort, 
+        M.remark as remark, M.create_date as create_date, M.modify_date as modify_date
+    </sql>
+
+    <select id="getById" resultMap="menuMap" parameterType="java.lang.Long">
+        select
+        <include refid="table_column"/>
+        from s_menu M
+        where M.id = #{id}
+    </select>
+
+    <insert id="save" parameterType="com.project.frame.model.core.Menu">
+        insert into s_menu (id, parent_id, name, url, sort, remark, create_date, modify_date
+            )
+        values (#{id}, #{parentId}, #{name}, #{url}, #{sort}, #{remark}, #{createDate}, #{modifyDate}
+            )
+    </insert>
+
+    <update id="update" parameterType="com.project.frame.model.core.Menu">
+        update s_menu
+        <set>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="url != null and url != ''">
+                url = #{url},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="createDate != null">
+                create_date = #{createDate},
+            </if>
+            <if test="modifyDate != null">
+                modify_date = #{modifyDate},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from s_menu
+        where id = #{id}
+    </delete>
+
+    <select id="selectList" resultMap="menuMap">
+        select
+        <include refid="table_column"/>
+        from s_menu M
+        <where>
+            <if test="parentId != null">
+                and M.parent_id = #{parentId}
+            </if>
+            <if test="name != null and name != ''">
+                and M.name = #{name}
+            </if>
+            <if test="url != null and url != ''">
+                and M.url = #{url}
+            </if>
+            <if test="sort != null">
+                and M.sort = #{sort}
+            </if>
+            <if test="remark != null and remark != ''">
+                and M.remark = #{remark}
+            </if>
+            <if test="createDate != null">
+                and M.create_date = #{createDate}
+            </if>
+            <if test="modifyDate != null">
+                and M.modify_date = #{modifyDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>
