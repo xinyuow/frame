@@ -7,6 +7,7 @@
         <result column="user_name" property="userName" jdbcType="VARCHAR"/>
         <result column="login_pwd" property="loginPwd" jdbcType="VARCHAR"/>
         <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="login_fail_cnt" property="loginFailCnt" jdbcType="INTEGER"/>
         <result column="lock_flag" property="lockFlag" jdbcType="TINYINT"/>
         <result column="locked_date" property="lockedDate" jdbcType="TIMESTAMP"/>
         <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
@@ -14,10 +15,34 @@
         <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
     </resultMap>
 
+    <!-- 级联查询返回的map -->
+    <resultMap id="joinUserMap" type="com.project.frame.model.core.User">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="login_name" property="loginName" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="login_pwd" property="loginPwd" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="login_fail_cnt" property="loginFailCnt" jdbcType="INTEGER"/>
+        <result column="lock_flag" property="lockFlag" jdbcType="TINYINT"/>
+        <result column="locked_date" property="lockedDate" jdbcType="TIMESTAMP"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="modify_date" property="modifyDate" jdbcType="TIMESTAMP"/>
+        <result column="del_flag" property="delFlag" jdbcType="TINYINT"/>
+
+        <!-- 级联查询用户对应角色 -->
+        <collection property="roles"
+                    ofType="com.project.frame.model.core.Role"
+                    javaType="java.util.ArrayList"
+                    select="com.project.frame.mapper.core.RoleMapper.getById"
+                    column="role_id">
+        </collection>
+    </resultMap>
+
     <sql id="table_column">
         U.id as id, U.login_name as login_name, U.user_name as user_name, U.login_pwd as login_pwd, 
-        U.status as status, U.lock_flag as lock_flag, U.locked_date as locked_date, U.create_date as create_date, 
-        U.modify_date as modify_date, U.del_flag as del_flag
+        U.status as status, U.login_fail_cnt as login_fail_cnt, U.lock_flag as lock_flag,
+        U.locked_date as locked_date, U.create_date as create_date, U.modify_date as modify_date,
+        U.del_flag as del_flag
     </sql>
 
     <select id="getById" resultMap="userMap" parameterType="java.lang.Long">
@@ -28,10 +53,10 @@
     </select>
 
     <insert id="save" parameterType="com.project.frame.model.core.User">
-        insert into s_user (id, login_name, user_name, login_pwd, status, lock_flag, locked_date, 
-            create_date, modify_date, del_flag)
-        values (#{id}, #{loginName}, #{userName}, #{loginPwd}, #{status}, #{lockFlag}, #{lockedDate}, 
-            #{createDate}, #{modifyDate}, #{delFlag})
+        insert into s_user (id, login_name, user_name, login_pwd, status, login_fail_cnt, lock_flag,
+            locked_date, create_date, modify_date, del_flag)
+        values (#{id}, #{loginName}, #{userName}, #{loginPwd}, #{status}, #{loginFailCnt}, #{lockFlag},
+            #{lockedDate}, #{createDate}, #{modifyDate}, #{delFlag})
     </insert>
 
     <update id="update" parameterType="com.project.frame.model.core.User">
@@ -48,6 +73,9 @@
             </if>
             <if test="status != null">
                 status = #{status},
+            </if>
+            <if test="loginFailCnt != null">
+                login_fail_cnt = #{loginFailCnt},
             </if>
             <if test="lockFlag != null">
                 lock_flag = #{lockFlag},
@@ -90,6 +118,9 @@
             <if test="status != null">
                 and U.status = #{status}
             </if>
+            <if test="loginFailCnt != null">
+                and U.login_fail_cnt = #{loginFailCnt}
+            </if>
             <if test="lockFlag != null">
                 and U.lock_flag = #{lockFlag}
             </if>
@@ -106,6 +137,25 @@
                 and U.del_flag = #{delFlag}
             </if>
         </where>
+    </select>
+
+    <!-- 根据登录名称查询用户 -->
+    <select id="getByLoginName" resultMap="userMap">
+        select
+        <include refid="table_column"/>
+        from s_user U
+        where U.login_name = #{loginName}
+    </select>
+
+    <!-- 查询用户并级联查询用户角色 -->
+    <select id="getUserCascadeRole" resultMap="joinUserMap" parameterType="java.lang.Long">
+        SELECT
+        <include refid="table_column"/>,
+        UR.role_id AS role_id
+        FROM s_user U
+        LEFT JOIN s_user_role AS UR ON U.id = UR.user_id
+        LEFT JOIN s_role AS R ON UR.role_id = R.id
+        WHERE U.id = #{userId}
     </select>
 
 </mapper>

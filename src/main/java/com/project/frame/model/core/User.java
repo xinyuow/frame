@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 用户类
@@ -83,6 +84,11 @@ public class User extends BaseEntity {
     }
 
     /**
+     * 登录失败次数
+     */
+    private Integer loginFailCnt;
+
+    /**
      * 是否锁定  1:是  0:否
      */
     private Boolean lockFlag;
@@ -96,4 +102,12 @@ public class User extends BaseEntity {
      * 是否删除  1:是  0:否
      */
     private Boolean delFlag;
+
+
+    /* ************************* 扩展属性 ********************************/
+
+    /**
+     * 用户对应的角色信息集合 - 登录时查询使用
+     */
+    private List<Role> roles;
 }

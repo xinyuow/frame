@@ -93,4 +93,22 @@
         </where>
     </select>
 
+    <!-- 通过用户ID查询对应的菜单权限集合 -->
+    <select id="findOrdinaryMenu" resultMap="menuMap">
+        SELECT
+        <include refid="table_column"/>
+        FROM s_menu M
+        WHERE M.id
+        IN (
+            SELECT
+              RM.menu_id
+            FROM s_role_menu RM
+            INNER JOIN s_role R ON RM.role_id = R.id AND R.status = 0
+            INNER JOIN s_user_role UR ON R.id = UR.role_id
+            WHERE UR.user_id= #{userId}
+            GROUP BY RM.menu_id
+        )
+        ORDER BY M.sort
+    </select>
+
 </mapper>

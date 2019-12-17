@@ -9,10 +9,13 @@ package com.project.frame.utils.exception;
 public enum BASE_RESPONSE_CODE_ENUM {
     /********************* 操作成功 **********************/
     REQUEST_SUCCESS("200", "操作成功"),
+    /********************* 操作失败 **********************/
+    REQUEST_FAIL("1100", "操作失败"),
 
     /********************* 系统异常 **********************/
     MIS_REQ_PARAM("400", "请求参数丢失"),
-    NO_AUTH_REQUEST("401", "未授权"),
+    UNAUTHORIZED_REQUEST("401", "未认证"),
+    FORBIDDEN_REQUEST("403", "未授权"),
     RESOURCE_NOT_FOUND("404", "请求的资源不存在"),
     METHOD_NOT_SUPPORTED("405", "不支持的请求方法"),
     MEDIA_TYPE_NOT_ACCEPT("406", "无法接受请求中的媒体类型"),
@@ -20,9 +23,12 @@ public enum BASE_RESPONSE_CODE_ENUM {
     SERVER_ERROR("500", "获取数据异常"),
 
     /********************* 业务自定义异常 *****************/
-    REQUEST_PARAMS_ERROR("1001", "参数异常"),
-    CALL_THIRDPARTY_API_FAILED("1002", "调用接口失败"),
-    VIDEO_FILE_IS_DAMAGED("1003", "视频文件破损");
+    NOT_LOGIN_ERROR("1001", "重新登录"),
+    CAPTCHA_ERROR("1002", "验证码错误"),
+    ACCOUNT_OR_PASSWORD_ERROR("1003", "账号或密码错误"),
+    ACCOUNT_HAS_BEEN_DISABLED("1004", "此账号已被禁用"),
+    ACCOUNT_IS_LOCKED("1005", "此账号已被锁定"),
+    ACCOUNT_AUTHENTICATION_FAILED("1006", "账号认证失败");
 
     /**
      * 错误编码

@@ -31,6 +31,6 @@ public class UserController extends BaseController {
      */
     @PostMapping(value = "/selectList")
     public Map<String, Object> selectList(User user) {
-        return getResult(JSONObject.toJSONString(userService.selectList(user)));
+        return getResult(userService.selectList(user));
     }
 }

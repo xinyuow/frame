@@ -3,7 +3,6 @@ package com.project.frame.model.common;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
@@ -15,7 +14,6 @@ import java.util.Date;
  * @author mxy
  * @date 2019/12/15
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonAutoDetect(creatorVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE, isGetterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE)
 public abstract class BaseEntity implements Serializable {
 
@@ -72,6 +70,8 @@ public abstract class BaseEntity implements Serializable {
         this.modifyDate = modifyDate;
     }
 
+    // 序列化时屏蔽该字段
+    @JSONField(serialize = false)
     public Boolean getFlag() {
         return flag;
     }

@@ -1,5 +1,6 @@
 package com.project.frame.utils.id;
 
+import com.project.frame.commons.constant.ServiceConstant;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,7 +26,7 @@ public class IDUtil {
         if (instance == null) {
             synchronized (IDUtil.class) {
                 if (instance == null) {
-                    instance = new IDWorker(0, 0);
+                    instance = new IDWorker(ServiceConstant.WORK_ID, ServiceConstant.DATA_ID);
                 }
             }
         }

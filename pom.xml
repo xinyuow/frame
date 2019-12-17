@@ -30,6 +30,7 @@
         <commons-lang3.version>3.7</commons-lang3.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-beanutils.version>1.7.0</commons-beanutils.version>
+        <shiro-spring-boot-web-starter.version>1.4.1</shiro-spring-boot-web-starter.version>
     </properties>
 
     <dependencies>
@@ -136,6 +137,13 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>${commons-beanutils.version}</version>
+        </dependency>
+
+        <!-- Shiro -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-spring-boot-web-starter</artifactId>
+            <version>${shiro-spring-boot-web-starter.version}</version>
         </dependency>
 
     </dependencies>

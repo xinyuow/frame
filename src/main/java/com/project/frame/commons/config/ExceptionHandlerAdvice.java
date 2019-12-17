@@ -3,13 +3,17 @@ package com.project.frame.commons.config;
 import com.project.frame.utils.exception.BASE_RESPONSE_CODE_ENUM;
 import com.project.frame.utils.exception.BaseCustomException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
+import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -42,12 +46,17 @@ public class ExceptionHandlerAdvice {
      */
     @ExceptionHandler(Exception.class)
     public Object handleException(Exception exception) {
-        logger.error("\r\n ************** 操作出现异常：{}", ExceptionUtils.getStackTrace(exception));
-
+        logger.error("\r\n ********* 操作出现异常：{}", ExceptionUtils.getStackTrace(exception));
         Class eClass = exception.getClass();
         Map<String, Object> map = new HashMap<>();
 
-        if (eClass.equals(HttpRequestMethodNotSupportedException.class)) {
+        if (eClass.equals(MissingServletRequestParameterException.class)) {
+            addResCodeToMap(BASE_RESPONSE_CODE_ENUM.MIS_REQ_PARAM, map);
+        } else if (eClass.equals(TypeMismatchException.class)) {
+            addResCodeToMap(BASE_RESPONSE_CODE_ENUM.MIS_REQ_PARAM, map);
+        } else if (eClass.equals(HttpMessageNotReadableException.class)) {
+            addResCodeToMap(BASE_RESPONSE_CODE_ENUM.MIS_REQ_PARAM, map);
+        } else if (eClass.equals(HttpRequestMethodNotSupportedException.class)) {
             addResCodeToMap(BASE_RESPONSE_CODE_ENUM.METHOD_NOT_SUPPORTED, map);
         } else if (eClass.equals(HttpMediaTypeNotAcceptableException.class)) {
             addResCodeToMap(BASE_RESPONSE_CODE_ENUM.MEDIA_TYPE_NOT_ACCEPT, map);
@@ -57,6 +66,12 @@ public class ExceptionHandlerAdvice {
             addResCodeToMap(BASE_RESPONSE_CODE_ENUM.SERVER_ERROR, map);
         } else if (eClass.equals(HttpMessageNotWritableException.class)) {
             addResCodeToMap(BASE_RESPONSE_CODE_ENUM.SERVER_ERROR, map);
+        } else if (eClass.equals(BaseCustomException.class)) {
+            // 系统业务异常
+            addExceptionToMap((BaseCustomException) exception, map);
+        } else if (eClass.equals(UnauthorizedException.class)) {
+            // 无权限
+            addExceptionToMap(new BaseCustomException(BASE_RESPONSE_CODE_ENUM.FORBIDDEN_REQUEST), map);
         } else {
             addResCodeToMap(BASE_RESPONSE_CODE_ENUM.SERVER_ERROR, map);
         }
@@ -86,5 +101,16 @@ public class ExceptionHandlerAdvice {
     private void addResCodeToMap(BASE_RESPONSE_CODE_ENUM baseResponseCodeEnum, Map<String, Object> map) {
         map.put(RESPONSE_CODE_NAME, baseResponseCodeEnum.getCode());
         map.put(RESPONSE_MSG_NAME, baseResponseCodeEnum.getMsg());
+    }
+
+    /**
+     * 添加异常信息到map中
+     *
+     * @param baseCustomException 接口异常类
+     * @param map                 接口异常集合
+     */
+    protected void addExceptionToMap(BaseCustomException baseCustomException, Map<String, Object> map) {
+        map.put(RESPONSE_CODE_NAME, baseCustomException.getErrorCode());
+        map.put(RESPONSE_MSG_NAME, baseCustomException.getErrorMsg());
     }
 }
