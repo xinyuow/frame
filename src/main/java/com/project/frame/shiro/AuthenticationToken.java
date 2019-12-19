@@ -1,5 +1,7 @@
 package com.project.frame.shiro;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.shiro.authc.UsernamePasswordToken;
 
 /**
@@ -8,8 +10,9 @@ import org.apache.shiro.authc.UsernamePasswordToken;
  * @author mxy
  * @date 2019/12/16
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class AuthenticationToken extends UsernamePasswordToken {
-
     private static final long serialVersionUID = 4628652632307774263L;
 
     // 验证码ID
@@ -24,21 +27,4 @@ public class AuthenticationToken extends UsernamePasswordToken {
         this.captchaId = captchaId;
         this.captcha = captcha;
     }
-
-    public String getCaptchaId() {
-        return captchaId;
-    }
-
-    public void setCaptchaId(String captchaId) {
-        this.captchaId = captchaId;
-    }
-
-    public String getCaptcha() {
-        return captcha;
-    }
-
-    public void setCaptcha(String captcha) {
-        this.captcha = captcha;
-    }
-
 }

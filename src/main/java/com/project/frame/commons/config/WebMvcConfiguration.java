@@ -6,12 +6,17 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.math.BigInteger;
@@ -28,6 +33,24 @@ import java.util.List;
  */
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
+
+    /**
+     * 跨域设置 - 过滤器方式先于拦截器生效
+     * 允许所有的域
+     * 允许所有的请求头
+     * 允许所有的方法
+     */
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource configSource = new UrlBasedCorsConfigurationSource();
+        configSource.registerCorsConfiguration("/**", config);
+        return new CorsFilter(configSource);
+    }
 
     /**
      * 配置消息转换器
@@ -88,5 +111,21 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         converters.add(fastJsonHttpMessageConverter);
         converters.add(stringHttpMessageConverter);
         converters.add(byteArrayHttpMessageConverter);
+    }
+
+    /**
+     * 配置自定义静态文件访问资源映射
+     * addResourceHandler() 是对外暴露的访问路径
+     * addResourceLocations() 是文件放置的路径
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 静态资源拦截
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/META-INF/")
+                .addResourceLocations("classpath:/META-INF/resources/")
+                .addResourceLocations("classpath:/resources/")
+                .addResourceLocations("classpath:/static/")
+                .addResourceLocations("classpath:/");
     }
 }

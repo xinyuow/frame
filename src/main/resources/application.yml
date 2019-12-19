@@ -2,6 +2,8 @@
 
 server:
   port: 8080 # 指定项目端口号
+  tomcat:
+    uri-encoding: UTF-8
 
 spring:
   devtools:
@@ -9,3 +11,8 @@ spring:
       enabled: true # 设置热部署。默认为true，此处重新设置防止其他地方修改。
   profiles: # 设置需要加载的yml配置文件
     active: datasource
+  http:   # 解决静态资源页面中文乱码
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8

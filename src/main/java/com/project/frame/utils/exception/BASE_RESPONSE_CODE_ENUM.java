@@ -9,8 +9,6 @@ package com.project.frame.utils.exception;
 public enum BASE_RESPONSE_CODE_ENUM {
     /********************* 操作成功 **********************/
     REQUEST_SUCCESS("200", "操作成功"),
-    /********************* 操作失败 **********************/
-    REQUEST_FAIL("1100", "操作失败"),
 
     /********************* 系统异常 **********************/
     MIS_REQ_PARAM("400", "请求参数丢失"),
@@ -22,13 +20,19 @@ public enum BASE_RESPONSE_CODE_ENUM {
     MEDIA_TYPE_NOT_SUPPORTED("415", "不支持的媒体类型"),
     SERVER_ERROR("500", "获取数据异常"),
 
-    /********************* 业务自定义异常 *****************/
-    NOT_LOGIN_ERROR("1001", "重新登录"),
+    /********************* 登录相关自定义异常 *****************/
+    LOGIN_SUCCESS("1000", "登录成功"),
+    NOT_LOGIN_ERROR("1001", "请重新登录"),
     CAPTCHA_ERROR("1002", "验证码错误"),
     ACCOUNT_OR_PASSWORD_ERROR("1003", "账号或密码错误"),
     ACCOUNT_HAS_BEEN_DISABLED("1004", "此账号已被禁用"),
-    ACCOUNT_IS_LOCKED("1005", "此账号已被锁定"),
-    ACCOUNT_AUTHENTICATION_FAILED("1006", "账号认证失败");
+    ACCOUNT_IS_LOCKED("1005", "此账号已被锁定，请稍后再试"),
+    ACCOUNT_AUTHENTICATION_FAILED("1006", "账号认证失败"),
+    UNAUTHORIZED("1007", "权限不足"),
+
+    /********************* 业务自定义异常 *****************/
+    REQUEST_PARAMS_ERROR("1010", "请求参数异常");
+
 
     /**
      * 错误编码

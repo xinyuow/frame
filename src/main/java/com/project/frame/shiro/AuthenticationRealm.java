@@ -6,19 +6,18 @@ import com.project.frame.model.core.User;
 import com.project.frame.service.core.MenuService;
 import com.project.frame.service.core.UserService;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.Permission;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 认证
@@ -96,8 +95,8 @@ public class AuthenticationRealm extends AuthorizingRealm {
             userService.update(user);
             return new SimpleAuthenticationInfo(new Principal(user.getId(), loginName), password, getName());
         } else {
-            // 未知用户
-            throw new UnknownAccountException();
+            // 未知用户，认证失败
+            throw new AuthenticationException();
         }
     }
 
@@ -144,4 +143,26 @@ public class AuthenticationRealm extends AuthorizingRealm {
         }
     }
 
+    /**
+     * 鉴权时调用
+     *
+     * @param principals 身份集合
+     * @param permission 访问的权限
+     * @return 鉴权结果
+     */
+    @Override
+    public boolean isPermitted(PrincipalCollection principals, Permission permission) {
+        AuthorizationInfo info = getAuthorizationInfo(principals);
+        Collection<Permission> perms = getPermissions(info);
+        if (CollectionUtils.isEmpty(perms)) {
+            return false;
+        }
+        // 鉴权
+        for (Permission perm : perms) {
+            if (perm.implies(permission)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -1,9 +1,9 @@
 package com.project.frame.controller.core;
 
-import com.alibaba.fastjson.JSONObject;
 import com.project.frame.controller.common.BaseController;
 import com.project.frame.model.core.User;
 import com.project.frame.service.core.UserService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,7 +30,22 @@ public class UserController extends BaseController {
      * @return 操作结果
      */
     @PostMapping(value = "/selectList")
+    @RequiresPermissions({"user:list"})
     public Map<String, Object> selectList(User user) {
+        user.setDelFlag(false);
         return getResult(userService.selectList(user));
+    }
+
+    /**
+     * 根据用户ID获取用户信息
+     *
+     * @param userId 用户ID
+     * @return 操作结果
+     */
+    @PostMapping(value = "/getById")
+    @RequiresPermissions({"user:getUser"})
+    public Map<String, Object> getById(Long userId) {
+        User user = userService.getById(userId);
+        return getResult(user);
     }
 }
