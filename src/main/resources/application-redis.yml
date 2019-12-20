@@ -1,0 +1,15 @@
+### Redis 配置 ###
+
+spring:
+  redis:
+    host: 127.0.0.1   # Redis所在IP
+    port: 6379        # Redis端口号
+    password: root    # Redis密码
+    database: 1       # 存储数据库，默认是。为了测试而不影响其他项目改为1
+    timeout: 3000     # 超时时间
+    jedis:
+      pool:
+        max-idle: 200   # 连接池中的最大空闲连接
+        min-idle: 20    # 连接池中的最小空闲连接
+        max-active: 50  # 连接池最大连接数
+        max-wait: 1000  # 连接池最大阻塞等待时间
