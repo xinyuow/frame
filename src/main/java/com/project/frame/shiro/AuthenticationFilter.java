@@ -79,10 +79,15 @@ public class AuthenticationFilter extends FormAuthenticationFilter {
      */
     @Override
     protected boolean onAccessDenied(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         // 判断是否为登录请求
         if (this.isLoginRequest(servletRequest, response)) {
-            return executeLogin(servletRequest, response);
+            if (isLoginSubmission(request, response)) {
+                return executeLogin(request, response);
+            } else {
+                return true;
+            }
         } else {
             // 非登录请求则返回登录失败
             response.setContentType("application/json");

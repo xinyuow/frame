@@ -2,7 +2,6 @@ package com.project.frame.commons.constant;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
  * @author mxy
  * @date 2019/12/16
  */
-@Order(1)
 @Component
 public class ServiceConstant implements InitializingBean {
 

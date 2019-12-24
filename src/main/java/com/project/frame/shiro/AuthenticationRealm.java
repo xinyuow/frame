@@ -1,5 +1,6 @@
 package com.project.frame.shiro;
 
+import com.alibaba.fastjson.JSON;
 import com.project.frame.model.core.Menu;
 import com.project.frame.model.core.Role;
 import com.project.frame.model.core.User;
@@ -106,7 +107,23 @@ public class AuthenticationRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         // 从缓存Realm中获取自定义的主体
-        Principal principal = (Principal) principals.fromRealm(getName()).iterator().next();
+        Object object = principals.fromRealm(getName()).iterator().next();
+        /*
+            此处不能直接转成Principal对象的原因是：
+            网上说是ClassLoader类加载器的不同导致的类型转换异常，
+            项目启动时加载项目中的类使用的加载器都是 org.springframework.boot.devtools.restart.classloader.RestartClassLoader
+            而从shiro session 取出来的对象（从redis中取出经过反序列化）的类加载器都是 sun.misc.Launcher.AppClassLoader，
+            很明显会导致类型转换异常，原来Spring的dev-tools为了实现重新装载class自己实现了一个类加载器，
+            来加载项目中会改变的类，方便重启时将新改动的内容更新进来。
+            解决方案1：可以去掉pom文件中的spring-boot-devtools
+            解决方案2：就是以下的方法
+         */
+        Principal principal;
+        if(object instanceof Principal) {
+            principal = (Principal) object;
+        } else {
+            principal = JSON.parseObject(JSON.toJSON(object).toString(), Principal.class);
+        }
 
         if (principal != null && null != principal.getId()) {
             // 使用SimpleAuthorizationInfo做授权

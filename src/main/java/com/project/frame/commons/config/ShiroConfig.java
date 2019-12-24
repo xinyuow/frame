@@ -1,10 +1,15 @@
 package com.project.frame.commons.config;
 
 import com.project.frame.shiro.*;
+import com.project.frame.shiro.redis.ShiroRedisCacheManager;
+import com.project.frame.shiro.redis.ShiroRedisSessionDAO;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.SimpleCookie;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -33,12 +38,14 @@ public class ShiroConfig {
     @Bean
     public DefaultWebSecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        // 不设置【记住我】
-        securityManager.setRememberMeManager(null);
-        // 设置session会话
-//        securityManager.setSessionManager(sessionManager);
         // 自定义的认证Realm
         securityManager.setRealm(authenticationShiroRealm());
+        // 不设置【记住我】
+        securityManager.setRememberMeManager(null);
+        // 会话管理
+        securityManager.setSessionManager(sessionManager());
+        // 缓存管理
+        securityManager.setCacheManager(shiroRedisCacheManager());
         return securityManager;
     }
 
@@ -55,7 +62,7 @@ public class ShiroConfig {
      */
     @Bean
     public ShiroFilterFactoryBean shiroFilterFactoryBean(DefaultWebSecurityManager securityManager) {
-        logger.info("\r\n ********* 进入Shiro过滤器 *********");
+        logger.info("\r\n ********* Shiro过滤器配置开始 *********");
 
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         // 设置securityManager
@@ -64,6 +71,7 @@ public class ShiroConfig {
         Map<String, Filter> filterMap = new HashMap<>();
         // map里面key值要为过滤器的名称，value为过滤器对象
         filterMap.put("auth", new AuthenticationFilter());
+        filterMap.put("framePerms", new AuthorizationFilter());
         // 将自定义的过滤器加入到过滤器集合中
         shiroFilterFactoryBean.setFilters(filterMap);
 
@@ -74,7 +82,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/api/v1/anon/**", "anon");
         filterChainDefinitionMap.put("/static/**", "anon"); // 放行静态资源，这里有一个坑。只配置这里是无效的。需要在 WebMvcConfiguration 类中的 addResourceHandlers() 中再配置一下
         filterChainDefinitionMap.put("/admin/logout", "logout");
-        filterChainDefinitionMap.put("/**", "auth");
+        filterChainDefinitionMap.put("/**", "auth,framePerms");
         // 设置拦截器
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 
@@ -118,5 +126,43 @@ public class ShiroConfig {
     @Bean
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
+    }
+
+    /**
+     * redis缓存管理
+     */
+    @Bean
+    @DependsOn("redisConstant")
+    public ShiroRedisCacheManager shiroRedisCacheManager() {
+        return new ShiroRedisCacheManager();
+    }
+
+    /**
+     * 设置session会话管理者
+     */
+    @Bean
+    public SessionManager sessionManager() {
+        DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
+        defaultWebSessionManager.setSessionIdCookie(simpleCookie());
+        defaultWebSessionManager.setSessionDAO(shiroRedisSessionDAO());
+        defaultWebSessionManager.setCacheManager(shiroRedisCacheManager());
+        return defaultWebSessionManager;
+    }
+
+    /**
+     * session管理
+     * 作用是为session提供CRUD并存入Redis中的一个Shiro组件
+     */
+    @Bean
+    public ShiroRedisSessionDAO shiroRedisSessionDAO() {
+        return new ShiroRedisSessionDAO();
+    }
+
+    /**
+     * 这里需要设置一个cookie的名称  原因就是会跟原来的session的id值重复的
+     */
+    @Bean
+    public SimpleCookie simpleCookie() {
+        return new SimpleCookie("SHAREJSESSIONID");
     }
 }

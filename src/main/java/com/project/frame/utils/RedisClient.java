@@ -1,19 +1,17 @@
-package com.project.frame.utils.redis;
+package com.project.frame.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.project.frame.commons.constant.RedisConstant;
-import com.project.frame.utils.ByteUtil;
-import com.project.frame.utils.JacksonUtil;
+import com.project.frame.commons.constant.RedisConfigConstant;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 
@@ -24,18 +22,18 @@ import java.util.*;
 public class RedisClient {
     private Logger logger = LoggerFactory.getLogger(RedisClient.class);
 
-    @Autowired
+    @Resource(name = "jedisPool")
     private volatile JedisPool jedisPool;
 
-    @Autowired
+    @Resource(name = "jedisPoolConfig")
     private JedisPoolConfig jedisPoolConfig;
 
-    public static final String NOT_FOUND = "nil";
+    private static final String NOT_FOUND = "nil";
 
     private Object lock = new Object();
 
     // 重试次数
-    private int resetNum = 3;
+    private final static int RESET_NUM = 3;
 
     /**
      * 获取Jedis对象
@@ -43,11 +41,11 @@ public class RedisClient {
      * @return Jedis对象
      */
     public Jedis getJedis() {
-        return getJedis(RedisConstant.DATABASE_ID);
+        return getJedis(RedisConfigConstant.DATABASE_ID);
     }
 
     /**
-     * 获取Jedis对象
+     * 获取Jedis对象，重试三次
      *
      * @param dbId 数据库ID
      * @return Jedis对象
@@ -55,7 +53,7 @@ public class RedisClient {
     public Jedis getJedis(int dbId) {
         Jedis jedis = null;
         int tryCount = 0;
-        while (jedis == null && tryCount < resetNum) {
+        while (jedis == null && tryCount < RESET_NUM) {
             tryCount++;
             try {
                 if (checkConnectionPool() != null) {
@@ -80,8 +78,8 @@ public class RedisClient {
             synchronized (lock) {
                 if (jedisPool == null) {
                     try {
-                        jedisPool = new JedisPool(jedisPoolConfig, RedisConstant.HOST, RedisConstant.PORT,
-                                RedisConstant.TIMEOUT, RedisConstant.PASSWORD);
+                        jedisPool = new JedisPool(jedisPoolConfig, RedisConfigConstant.HOST, RedisConfigConstant.PORT,
+                                RedisConfigConstant.TIMEOUT, RedisConfigConstant.PASSWORD);
                     } catch (Exception e) {
                         logger.error("\r\n ********* [校验JedisPoll连接池失败]" + ExceptionUtils.getFullStackTrace(e));
                     }
@@ -2115,6 +2113,22 @@ public class RedisClient {
             jedis.flushAll();
         } catch (Exception e) {
             logger.error("\r\n ********* [Cache清空失败]" + ExceptionUtils.getFullStackTrace(e));
+        } finally {
+            releaseJedisInstance(jedis);
+        }
+    }
+
+    /**
+     * 获取Redis中的数据量
+     */
+    public Long dbSize() {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.dbSize();
+        } catch (Exception e) {
+            logger.error("\r\n ********* [获取Redis数据量失败]" + ExceptionUtils.getFullStackTrace(e));
+            return 0L;
         } finally {
             releaseJedisInstance(jedis);
         }
