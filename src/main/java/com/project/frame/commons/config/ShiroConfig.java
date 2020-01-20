@@ -9,7 +9,6 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.SimpleCookie;
-import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -70,8 +69,8 @@ public class ShiroConfig {
         // 自定义的过滤器
         Map<String, Filter> filterMap = new HashMap<>();
         // map里面key值要为过滤器的名称，value为过滤器对象
-        filterMap.put("auth", new AuthenticationFilter());
-        filterMap.put("framePerms", new AuthorizationFilter());
+        filterMap.put("authc", new AuthenticationFilter());
+        filterMap.put("perms", new AuthorizationFilter());
         // 将自定义的过滤器加入到过滤器集合中
         shiroFilterFactoryBean.setFilters(filterMap);
 
@@ -82,7 +81,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/api/v1/anon/**", "anon");
         filterChainDefinitionMap.put("/static/**", "anon"); // 放行静态资源，这里有一个坑。只配置这里是无效的。需要在 WebMvcConfiguration 类中的 addResourceHandlers() 中再配置一下
         filterChainDefinitionMap.put("/admin/logout", "logout");
-        filterChainDefinitionMap.put("/**", "auth,framePerms");
+        filterChainDefinitionMap.put("/**", "authc,perms");
         // 设置拦截器
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 
@@ -142,11 +141,12 @@ public class ShiroConfig {
      */
     @Bean
     public SessionManager sessionManager() {
-        DefaultWebSessionManager defaultWebSessionManager = new DefaultWebSessionManager();
-        defaultWebSessionManager.setSessionIdCookie(simpleCookie());
-        defaultWebSessionManager.setSessionDAO(shiroRedisSessionDAO());
-        defaultWebSessionManager.setCacheManager(shiroRedisCacheManager());
-        return defaultWebSessionManager;
+        FrameSessionManager sessionManager = new FrameSessionManager();
+        sessionManager.setSessionIdCookie(simpleCookie());  // 指定sessionID
+        sessionManager.setSessionDAO(shiroRedisSessionDAO());
+        sessionManager.setCacheManager(shiroRedisCacheManager());
+        sessionManager.setSessionIdUrlRewritingEnabled(false);  // 去除登录时携带的sessionID
+        return sessionManager;
     }
 
     /**
@@ -163,6 +163,9 @@ public class ShiroConfig {
      */
     @Bean
     public SimpleCookie simpleCookie() {
-        return new SimpleCookie("SHAREJSESSIONID");
+        SimpleCookie simpleCookie = new SimpleCookie();
+        simpleCookie.setHttpOnly(true);
+        simpleCookie.setName("SHARE_JSESSIONID");
+        return simpleCookie;
     }
 }
